@@ -1,9 +1,10 @@
 <template lang="">
     <div class="entry-title d-felx justify-content-between p-2">
+
         <div>
-            <span class="text-success fs-3 fw-bold">15</span>
-            <span class="mx-1">Julio</span>
-            <span class="mx-2 fs-4 fw-light">2023, jueves</span>
+            <span class="text-success fs-3 fw-bold">{{day}}</span>
+            <span class="mx-1">{{month}}</span>
+            <span class="mx-2 fs-4 fw-light">{{year}}</span>
         </div>
 
         <div>
@@ -22,7 +23,9 @@
     <hr>
 
     <div class="d-flex flex-column px-3 h-75">
-        <textarea placeholder="¿Que sucedio hoy?"></textarea>
+        <textarea
+        v-model="entry.text"
+        placeholder="¿Que sucedio hoy?"></textarea>
     </div>
 
     <Fab 
@@ -37,11 +40,68 @@
 <script>
 
 import { defineAsyncComponent } from 'vue';
+import { mapGetters } from 'vuex';
+import getDayMonthYear from '../helpers/getDayMonthYear.js';
 
 export default {
+    
+    props:{
+        id:{
+            type: String,
+            required: true,
+        }
+    },
+
     components:{
         Fab : defineAsyncComponent(() => import('../components/FabComponent.vue')),
     },
+
+
+    data(){
+        return{
+            entry: null,
+        }
+    },
+
+    computed: {
+         ...mapGetters('journal', ['getEntriesById']),
+
+         day(){
+            const {day} = getDayMonthYear(this.entry.date);
+            return day;
+         },
+
+         month(){
+            const {month} = getDayMonthYear(this.entry.date);
+            return month;
+         },
+
+         year(){
+            const {year} = getDayMonthYear(this.entry.date);
+            return year;
+         },
+    },
+
+    methods:{
+        loadEntry(){
+            const entry = this.getEntriesById(this.id);
+            if(!entry){
+                return this.$router.push({name: 'no-entry'});
+            }
+
+            this.entry = entry;
+        }
+    },
+
+    created(){
+        this.loadEntry();
+    },
+
+    watch:{
+        id(){
+            this.loadEntry();
+        }
+    }
 }
 </script>
 
