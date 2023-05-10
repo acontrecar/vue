@@ -11,4 +11,14 @@ export const updateEntry = (state, entries) => {
   state.entries[idx] = entries;
 };
 
-export const addEntry = (/*{ state }*/) => {};
+export const addEntry = (state, entry) => {
+
+  //state -> entries -> la nueva entrada debe de ser la primera
+
+  state.entries = [entry, ...state.entries];
+  console.log({ ...state.entries });
+};
+
+export const deleteEntry = (state, id) => {
+  state.entries = state.entries.filter((entry) => entry.id !== id);
+}
