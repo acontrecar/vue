@@ -29,7 +29,9 @@
     </div>
 
     <Fab 
-    icon="fa-save"/>
+    icon="fa-save"
+    @on:click="saveEntry"
+    />
 
     <img 
     src="https://tecnologiasocial.org/wp-content/uploads/2020/07/Persona_pensando_en_el_futuro-768x576.jpg" 
@@ -40,65 +42,96 @@
 <script>
 
 import { defineAsyncComponent } from 'vue';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 import getDayMonthYear from '../helpers/getDayMonthYear.js';
 
 export default {
-    
-    props:{
-        id:{
+
+    props: {
+        id: {
             type: String,
             required: true,
         }
     },
 
-    components:{
-        Fab : defineAsyncComponent(() => import('../components/FabComponent.vue')),
+    components: {
+        Fab: defineAsyncComponent(() => import('../components/FabComponent.vue')),
     },
 
 
-    data(){
-        return{
+    data() {
+        return {
             entry: null,
         }
     },
 
     computed: {
-         ...mapGetters('journal', ['getEntriesById']),
+        ...mapGetters('journal', ['getEntriesById']),
 
-         day(){
-            const {day} = getDayMonthYear(this.entry.date);
+        day() {
+            const { day } = getDayMonthYear(this.entry.date);
             return day;
-         },
+        },
 
-         month(){
-            const {month} = getDayMonthYear(this.entry.date);
+        month() {
+            const { month } = getDayMonthYear(this.entry.date);
             return month;
-         },
+        },
 
-         year(){
-            const {year} = getDayMonthYear(this.entry.date);
+        year() {
+            const { year } = getDayMonthYear(this.entry.date);
             return year;
-         },
+        },
     },
 
-    methods:{
-        loadEntry(){
-            const entry = this.getEntriesById(this.id);
-            if(!entry){
-                return this.$router.push({name: 'no-entry'});
+    methods: {
+
+        ...mapActions('journal', ['updateEntry']),
+
+        loadEntry() {
+
+            let entry;
+
+            if (this.id === 'new') {
+                entry = {
+                    //id: new Date().getTime(),
+                    date: new Date().getTime(),
+                    text: '',
+                    //picture: null,
+                }
+            } else {
+                entry = this.getEntriesById(this.id);
+                if (!entry) {
+                    return this.$router.push({ name: 'no-entry' });
+                }
             }
 
             this.entry = entry;
+        },
+
+        async saveEntry() {
+            
+            // if(this.id === 'new'){
+            //     const newEntry = {
+            //         ...this.entry,
+            //         id: new Date().getTime(),
+            //     }
+            //     await this.updateEntry(newEntry);
+            //     this.$router.push({name: 'entry', params: {id: newEntry.id}});
+            // }else{
+            //     this.updateEntry(this.entry);
+            // }
+
+            this.updateEntry(this.entry);
         }
     },
 
-    created(){
+    created() {
         this.loadEntry();
     },
 
-    watch:{
-        id(){
+    watch: {
+        id() {
             this.loadEntry();
         }
     }
@@ -107,7 +140,6 @@ export default {
 
 
 <style lang="scss" scoped>
-
 textarea {
     font-size: 20px;
     border: none;
@@ -125,5 +157,4 @@ img {
     right: 20px;
     box-shadow: 0px 5px 10px rgba($color: #000000, $alpha: 0.2);
 }
-
 </style>
