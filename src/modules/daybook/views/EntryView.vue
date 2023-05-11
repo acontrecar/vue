@@ -47,11 +47,12 @@
     @on:click="saveEntry"
     />
 
-    <!-- <img 
-    src="https://tecnologiasocial.org/wp-content/uploads/2020/07/Persona_pensando_en_el_futuro-768x576.jpg" 
+    <img
+    v-if="entry.picture && !localImage" 
+    :src="entry.picture"
     alt="entry-picture"
     class="img-thumbnail"
-    > -->
+    >
 
     <img 
     v-if="localImage"
@@ -66,6 +67,7 @@ import { defineAsyncComponent } from 'vue';
 import { mapGetters, mapActions } from 'vuex';
 import getDayMonthYear from '../helpers/getDayMonthYear.js';
 import Swal from 'sweetalert2'
+import uploadImage from '../helpers/uploadImage.js';
 
 export default {
 
@@ -143,6 +145,10 @@ export default {
             });
 
             Swal.showLoading();
+
+            const picture = await uploadImage(this.file)
+
+            this.entry.picture = picture;
 
             if (this.entry.id) {
                 await this.updateEntry(this.entry);
